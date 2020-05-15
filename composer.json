@@ -1,0 +1,7 @@
+{
+	"name": "infrajs/layer-onsubmit",
+	"homepage":"https://github.com/infrajs/layer-onsubmit",
+	"require":{
+		"infrajs/popup": "~1"
+	}
+}
