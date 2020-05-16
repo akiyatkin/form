@@ -1,73 +1,73 @@
-
 import { Fire } from '/vendor/akiyatkin/load/Fire.js'
 import { Popup } from '/vendor/infrajs/popup/Popup.js'
 import { Access } from '/vendor/infrajs/access/Access.js'
 import { Crumb } from '/vendor/infrajs/controller/src/Crumb.js'
+import { reCAPTCHA } from '/vendor/akiyatkin/recaptcha/reCAPTCHA.js'
+import { Autosave } from './Autosave.js'
+import { DOM } from '/vendor/akiyatkin/load/DOM.js'
+import { Parsed } from '/vendor/infrajs/controller/src/Parsed.js'
 import { Controller } from '/vendor/infrajs/controller/src/Controller.js'
-import { Layer } from '/vendor/infrajs/controller/src/Layer.js'
 import { Global } from '/vendor/infrajs/layer-global/Global.js'
+
 //Ответ обработчика находится в layer.config.ans (обрабатываются параметры в ответе result, msg
 //Проверки перед отправки формы не предусмотрено. Всё проверяет сервер и отвечает в msg.
 //При изменении msg слой перепарсивается
 
-let handlock = new WeakSet()
-let clicklock = new Set()
-let Form = {
-	on: async (...params) => await Fire.on(Form, ...params),
-	tikon: async (...params) => await Fire.tikon(Form, ...params),
-	hand: async (...params) => await Fire.hand(Form, ...params),
-	wait: async (...params) => await Fire.wait(Form, ...params)
-}
 
-Form.init = (form, layerid, callback) => {
-	let resolve
-	let promise = new Promise(r => resolve = r)
-	if (handlock.has(form)) return
-	handlock.add(form)
+/*
+	init
+	submit
 
+	before
+	hand
+	after 
+
+
+*/
+
+let Form = { ...Fire }
+
+Form.before('init', form => {
+	if (!form.dataset.autosave) return
+	Autosave.init(form, form.dataset.autosave)
+})
+
+Form.before('init', form => {
+	if (!form.dataset.recaptcha) return
+	reCAPTCHA.on('init')
+})
+Form.before('submit', async form => {
+	await reCAPTCHA.tikon('apply', form)
+})
+
+
+Form.before('init', form => {
 	let cls = (cls) => form.getElementsByClassName(cls)
-
 	for (let btn of cls('submit')) {
 		btn.addEventListener('click', form.submit)
 	}
-	
-	//Event, Crumb, Controller
-	form.addEventListener('submit', async e => {
-		e.preventDefault()
-		if (clicklock.has(layerid)) return false //Защита от двойной отправки
-		clicklock.add(layerid)
-		await Submit.tikon('start', form) //Для reCAPTCHA и для autosave
-		
-		setTimeout(async () => { //autosave должен примениться
-			let ans = await Submit.post(form)
-			Controller.check()
-			Layer.hand('init', async layer => {
-				if (layer.id != layerid) return
-				if (!layer.config) layer.config = {}
-				layer.config.ans = ans
+})
 
-				if (layer.global) {
-					Global.set(layer.global); //Удаляет config.ans у слоёв
-				}
-				await Session.async()
-				
-				clicklock.delete(layerid)
-				resolve(layer)
-				form.ans = ans
-				await Submit.tikon('end', layer) //Для Goal
-				if (ans.go) {
-					Crumb.go(ans.go)
-				}
-				if (ans.popup) {
-					if (ans.result) Popup.success(ans.msg)
-					else Popup.error(ans.msg)
-				}
-			})
-		}, 200);
+Form.hand('init', form => {
+	return new Promise( resolve => {
+		form.addEventListener('submit', async e => {
+			e.preventDefault()
+			let ans = await Form.on('submit', form) //Событие 2 раза не генерируется
+			resolve(ans)
+		})	
 	})
-	return promise
-}
-Form.post = async form => {
+})
+
+
+
+Form.before('submit', async form => {
+	await Session.async() //Поля должны сохраниться в сессии на сервере
+})
+Form.done('submit', () => {
+	Controller.check()
+})
+
+Form.hand('submit', async form => {
 	let response = await fetch(form.action, {
 		method: 'POST',
 		body: new FormData(form)
@@ -88,6 +88,45 @@ Form.post = async form => {
 		msg: msg
 	}
 	return ans
-}
+})
+
+
+Form.after('submit', (form, ans) => {
+	if (ans.go) {
+		Crumb.go(ans.go)
+	}
+	if (ans.popup) {
+		if (ans.result) Popup.success(ans.msg)
+		else Popup.error(ans.msg)
+	}
+})
+
+Parsed.add(layer => { 
+	//parsed должен забираться после установки msg config-a
+	//После onsubmit слой должен перепарсится
+	if (!layer.onsubmit) return ''
+	if (!layer.config || !layer.config.ans) return ''
+	let str = layer.config.ans.msg
+	if (!str) str = ''
+	if (layer.config.ans.time) {
+		str += layer.config.ans.time
+	}
+	return str
+})
+
+Form.done('submit', async (form, ans) => {
+	if (!form.dataset.layerid) return
+	await Controller.wait('check')
+	let layer = Controller.ids[form.dataset.layerid]
+	if (!layer.config) layer.config = {}
+	layer.config.ans = ans
+})
+
+
+Form.after('submit', form => {
+	if (!form.dataset.global) return
+	Global.set(form.dataset.global) //Удаляет config.ans у слоёв
+})
+
 window.Form = Form
 export {Form}

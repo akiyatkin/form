@@ -19,7 +19,7 @@ let autofocus_moveCaretToEnd = function (inp) {
 	} catch (e) { }
 }
 let autofocus = async function (layer) {//onshow
-	await CDN.load('jquery')
+	await CDN.on('load','jquery')
 	if (typeof (layer) == 'string') {
 		var div = $(layer);
 		var layer = {};
@@ -61,22 +61,23 @@ let autofocussave = async function (layer) {//oncheck
 	//autofocus
 	if (!layer.autofocus) return;
 	if (!layer.showed) return;
-	await CDN.load('jquery')
+	await CDN.on('load','jquery')
 	var div = $('#' + layer.div);
 	var inp = div.find('input:focus');
 	if (!inp.length) return;
 	layer.autofocuswas = inp.attr('name');//Если происходит асинхронный ответ и тп...
 }
 
+Autofocus.save = autofocussave
+Autofocus.load = autofocus
 
 
-
-Event.handler('Layer.oncheck', function (layer) {
+/*Event.handler('Layer.oncheck', function (layer) {
 	autofocussave(layer);
 });
 Event.handler('Layer.onshow', function (layer) {
 	autofocus(layer);
-});
+});*/
 
 
 export {Autofocus}

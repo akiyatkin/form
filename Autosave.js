@@ -9,7 +9,7 @@ import { Session } from '/vendor/infrajs/session/Session.js'
 
 let Autosave = {
 	getInps: function (div) {
-		return $('#' + div).find('select, .autosaveblock, [type=search], [type=number], [type=tel], [type=email], [type=password], [type=text], [type=radio], [type=checkbox], textarea').filter('[autosave!=0]').filter('[name!=""]');
+		return $(div).find('select, .autosaveblock, [type=search], [type=number], [type=tel], [type=email], [type=password], [type=text], [type=radio], [type=checkbox], textarea').filter('[autosave!=0]').filter('[name!=""]');
 	},
 	/**
 	* слой у которого нужно очистить весь autosave, например после отправки формы на сервер, нужно сбросить сохранённые в инпутах данные
@@ -37,7 +37,7 @@ let Autosave = {
 	},
 	//-----------
 	loadAll: async (autosavename, div) => {
-		await CDN.load('jquery')
+		await CDN.on('load','jquery')
 		var inps = Autosave.getInps(div).filter('[autosave]');
 		inps.each(function () {
 			var inp = $(this);
@@ -54,7 +54,7 @@ let Autosave = {
 	},
 	/*saveAll: async function (autosavename, div) {
 		if (!autosavename) return;
-		await CDN.load('jquery')
+		await CDN.on('load','jquery')
 		var inps = Autosave.getInps(div).filter('[autosave]');
 
 		inps.each(function () {
@@ -131,8 +131,8 @@ let Autosave = {
 			return !element.dispatchEvent(evt);
 		}
 	},
-	init: async function (autosavename, div) {
-		await CDN.load('jquery')
+	init: async function (div, autosavename) {
+		await CDN.on('load','jquery')
 		var inps = Autosave.getInps(div).not('[autosave]').attr('autosave', 1);//Берём input тольо не обработанные
 	
 		inps.each(function () {

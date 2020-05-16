@@ -1,3 +1,8 @@
 {
-	"name": "akiyatkin/form"
+	"name": "akiyatkin/form",
+	"dependencies":{
+		"akiyatkin/recaptcha":"~1",
+		"akiyatkin/goal":"~1"	,
+		"infrajs/layer-global":"~1"
+	}
 }
