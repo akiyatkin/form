@@ -2,7 +2,7 @@ import { Parsed } from '/vendor/infrajs/controller/src/Parsed.js'
 import { Form } from '/vendor/akiyatkin/form/Form.js'
 import { Global } from '/vendor/infrajs/layer-global/Global.js'
 import { Controller } from '/vendor/infrajs/controller/src/Controller.js'
-import { Goal } from '/vendor/akiyatkin/Goal/Goal.js'
+import { Goal } from '/vendor/akiyatkin/goal/Goal.js'
 
 Parsed.add(layer => { 
 	//parsed должен забираться после установки msg config-a
