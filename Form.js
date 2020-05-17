@@ -11,12 +11,16 @@ let Form = { ...Fire }
 Form.before('submit', async form => {
 	await Session.async() //Поля должны сохраниться в сессии на сервере
 })
-Form.before('init', form => {
+
+Form.hand('init', form => {
 	if (!form.dataset.autosave) return
 	Autosave.init(form, form.dataset.autosave)
 })
 
-
+// Form.hand('init', form => {
+// 	if (!form.dataset.autosave) return
+//     Autosave.loadAll(form, form.dataset.autosave)
+// })
 
 
 Form.before('init', form => {
@@ -28,6 +32,13 @@ Form.before('submit', async form => {
 })
 
 
+
+Form.before('init', form => {
+	let cls = (cls) => form.getElementsByClassName(cls)
+	for (let btn of cls('submit')) {
+		btn.addEventListener('click', form.submit)
+	}
+})
 Form.hand('init', form => {
 	return new Promise( resolve => {
 		form.addEventListener('submit', async e => {
@@ -37,13 +48,6 @@ Form.hand('init', form => {
 		})	
 	})
 })
-Form.before('init', form => {
-	let cls = (cls) => form.getElementsByClassName(cls)
-	for (let btn of cls('submit')) {
-		btn.addEventListener('click', form.submit)
-	}
-})
-
 
 Form.hand('submit', async form => {
 	let response = await fetch(form.action, {

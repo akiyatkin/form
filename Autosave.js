@@ -36,7 +36,7 @@ let Autosave = {
 		//layer.autosave=infra.seq.set(layer.autosave,right,val);
 	},
 	//-----------
-	loadAll: async (autosavename, div) => {
+	loadAll: async (div, autosavename) => {
 		await CDN.on('load','jquery')
 		var inps = Autosave.getInps(div).filter('[autosave]');
 		inps.each(function () {
@@ -153,7 +153,7 @@ let Autosave = {
 		});
 		//Функция сохраняет все значение, а не только того элемента на ком она сработала
 	
-		Autosave.loadAll(autosavename, div);//Востанавливаем то что есть в autosave, При установки нового занчения срабатывает change
+		Autosave.loadAll(div, autosavename);//Востанавливаем то что есть в autosave, При установки нового занчения срабатывает change
 		//change может программно вызываться у множества элементов. это приводит к тормозам.. нужно объединять
 		inps.change(function () {//Всё на change.. при авто изменении нужно вызывать событие change
 			//Autosave.saveAll(layer);
