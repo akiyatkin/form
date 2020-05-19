@@ -1,34 +1,28 @@
 import { Form } from '/vendor/akiyatkin/form/Form.js'
 import { DOM } from '/vendor/akiyatkin/load/DOM.js'
 import { Controller } from '/vendor/infrajs/controller/src/Controller.js'
-let imp = async name => import({
-	Crumb: '/vendor/infrajs/controller/src/Crumb.js',
-	Popup: '/vendor/infrajs/popup/Popup.js'
-}[name])
 
-DOM.done('load', () => {
+DOM.done('load', href => {
 	for (let form of document.getElementsByTagName('form')) {
-		if (!form.dataset.layerid) continue
+		if (!form.classList.contains('form')) continue
 		Form.on('init', form)
 	}
 })
 
-Form.after('submit', async (form, ans) => {
+Form.done('submit', async (form, ans) => {
+	Controller.check()
+	await Controller.wait('init')
 	if (ans.go) {
-		let Crumb = await imp('Crumb')
+		let { Crumb } = await import('/vendor/infrajs/controller/src/Crumb.js')
 		Crumb.go(ans.go)
 	}
 	if (ans.popup) {
-		let Popup = await imp('Popup')
-		if (ans.result) Popup.success(ans.msg)
-		else Popup.error(ans.msg)
+		let { Popup } = await import('/vendor/infrajs/popup/Popup.js')
+		if (ans.result) await Popup.success(ans.msg)
+		else await Popup.error(ans.msg)
 	}
 })
 
-
-Form.done('submit', () => {
-	Controller.check()
-})
 
 Controller.hand('init', async () => {
 	//Нельзя продолжать пока не выполнится инициализация

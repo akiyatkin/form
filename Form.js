@@ -1,17 +1,6 @@
 import { Fire } from '/vendor/akiyatkin/load/Fire.js'
 import { Session } from '/vendor/infrajs/session/Session.js'
 
-let $ = async name => import({
-	Autosave: './Autosave.js',
-	Access: '/vendor/infrajs/access/Access.js',
-	reCAPTCHA: '/vendor/akiyatkin/recaptcha/reCAPTCHA.js'
-}[name])
-
-//import { Access } from '/vendor/infrajs/access/Access.js'
-//import { reCAPTCHA } from '/vendor/akiyatkin/recaptcha/reCAPTCHA.js'
-
-
-
 let Form = { ...Fire }
 
 Form.before('submit', async form => {
@@ -20,20 +9,20 @@ Form.before('submit', async form => {
 
 Form.hand('init', async form => {
 	if (!form.dataset.autosave) return
-	let autosave = await $('Autosave')
+	let { Autosave } = await import('./Autosave.js')
 	Autosave.init(form, form.dataset.autosave)
 })
 
 
 Form.before('init', async form => {
 	if (!form.dataset.recaptcha) return
-	let recaptcha = await $('reCAPTCHA')
+	let { reCAPTCHA } = await import('/vendor/akiyatkin/recaptcha/reCAPTCHA.js')
 	reCAPTCHA.on('init')
 })
 Form.before('submit', async form => {
 	if (!form.dataset.recaptcha) return
-	let recaptcha = await $('reCAPTCHA')
-	await reCAPTCHA.tikon('apply', form)
+	let { reCAPTCHA } = await import('/vendor/akiyatkin/recaptcha/reCAPTCHA.js')
+	await reCAPTCHA.on('apply', form)
 })
 
 
@@ -70,7 +59,7 @@ Form.hand('submit', async form => {
 		} catch (e) {
 			msg = 'Server Error'
 			let text = await response.text()
-			let Access = await $('Access')
+			let { Access } = import('/vendor/infrajs/access/Access.js')
 			if (await Access.debug()) msg += '<hr>' + e + '<hr>' + text
 		}
 	}
