@@ -1,7 +1,18 @@
 import { Fire } from '/vendor/akiyatkin/load/Fire.js'
 import { Session } from '/vendor/infrajs/session/Session.js'
+let reCAPTCHA, Autosave
+
+// Form init, submit, check
 
 let Form = { ...Fire }
+
+Form.once('init', async () => {
+	Autosave = (await import('./Autosave.js')).Autosave
+})
+Form.once('submit', async () => {
+	reCAPTCHA = (await import('/vendor/akiyatkin/recaptcha/reCAPTCHA.js')).reCAPTCHA
+})
+
 
 Form.before('submit', async form => {
 	await Session.async() //Поля должны сохраниться в сессии на сервере
@@ -9,20 +20,13 @@ Form.before('submit', async form => {
 
 Form.hand('init', async form => {
 	if (!form.dataset.autosave) return
-	let { Autosave } = await import('./Autosave.js')
+	
 	Autosave.init(form, form.dataset.autosave)
 })
 
-
-Form.before('init', async form => {
-	if (!form.dataset.recaptcha) return
-	let { reCAPTCHA } = await import('/vendor/akiyatkin/recaptcha/reCAPTCHA.js')
-	reCAPTCHA.on('init')
-})
 Form.before('submit', async form => {
 	if (!form.dataset.recaptcha) return
-	let { reCAPTCHA } = await import('/vendor/akiyatkin/recaptcha/reCAPTCHA.js')
-	await reCAPTCHA.on('apply', form)
+	await reCAPTCHA.fire('apply', form)
 })
 
 
@@ -37,12 +41,9 @@ Form.before('init', form => {
 	}
 })
 Form.hand('init', form => {
-	return new Promise( resolve => {
-		form.addEventListener('submit', async e => {
-			e.preventDefault()
-			let ans = await Form.on('submit', form) //Событие 2 раза не генерируется
-			resolve(ans)
-		})	
+	form.addEventListener('submit', async e => {
+		e.preventDefault()
+		Form.puff('submit', form)
 	})
 })
 
@@ -70,6 +71,9 @@ Form.hand('submit', async form => {
 	return ans
 })
 
+Form.done('submit', async (form, ans) => {
+	Form.emit('check', form)
+})
 
 window.Form = Form
 export {Form}
