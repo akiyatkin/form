@@ -6,10 +6,10 @@ import { Layer } from '/vendor/infrajs/controller/src/Layer.js'
 Parsed.add(layer => { 
 	//parsed должен забираться после установки msg config-a
 	//После onsubmit слой должен перепарсится
-	if (!layer.onsubmit) return ''
-	if (!layer.config || !layer.config.ans) return ''
+	if (!layer.onsubmit) return 's'
+	if (!layer.config || !layer.config.ans) return 's'
 	let str = layer.config.ans.msg
-	if (!str) str = ''
+	if (!str) str = 's'
 	if (layer.config.ans.time) {
 		str += layer.config.ans.time
 	}
