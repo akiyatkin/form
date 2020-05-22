@@ -1,7 +1,7 @@
 import { Parsed } from '/vendor/infrajs/controller/src/Parsed.js'
 import { Form } from '/vendor/akiyatkin/form/Form.js'
 import { Layer } from '/vendor/infrajs/controller/src/Layer.js'
-
+import { Event } from '/vendor/infrajs/event/Event.js'
 
 Parsed.add(layer => { 
 	//parsed должен забираться после установки msg config-a
@@ -39,3 +39,8 @@ Form.done('submit', async (form, ans) => {
 })
 
 	
+Event.handler('Layer.oncheck', async function (layer) {
+	if (!layer['autosavenametpl']) return;
+	let { Template } = await import('/vendor/infrajs/template/Template.js')
+	layer['autosavename'] = Template.parse([layer['autosavenametpl']], layer);
+});

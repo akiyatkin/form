@@ -7,10 +7,8 @@ let reCAPTCHA, Autosave
 let Form = { ...Fire }
 
 Form.once('init', async () => {
+	//init следующий
 	Autosave = (await import('./Autosave.js')).Autosave
-})
-Form.once('submit', async () => {
-	reCAPTCHA = (await import('/vendor/akiyatkin/recaptcha/reCAPTCHA.js')).reCAPTCHA
 })
 
 
@@ -20,12 +18,12 @@ Form.before('submit', async form => {
 
 Form.hand('init', async form => {
 	if (!form.dataset.autosave) return
-	
 	Autosave.init(form, form.dataset.autosave)
 })
 
 Form.before('submit', async form => {
 	if (!form.dataset.recaptcha) return
+	reCAPTCHA = (await import('/vendor/akiyatkin/recaptcha/reCAPTCHA.js')).reCAPTCHA
 	await reCAPTCHA.fire('apply', form)
 })
 
@@ -48,12 +46,14 @@ Form.hand('init', form => {
 })
 
 Form.hand('submit', async form => {
+	let ans = false
+	if (!form.action) return ans
 	let response = await fetch(form.action, {
 		method: 'POST',
 		body: new FormData(form)
 	})
 	let msg = 'Connect Error'
-	let ans = false
+	
 	if (response) {
 		try {
 			ans = await response.json()
