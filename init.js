@@ -6,13 +6,15 @@ import { Event } from '/vendor/infrajs/event/Event.js'
 Parsed.add(layer => { 
 	//parsed должен забираться после установки msg config-a
 	//После onsubmit слой должен перепарсится
-	if (!layer.onsubmit) return 's'
+	//if (!layer.onsubmit) return 's'
 	if (!layer.config || !layer.config.ans) return 's'
 	let str = layer.config.ans.msg
 	if (!str) str = 's'
 	if (layer.config.ans.time) {
 		str += layer.config.ans.time
 	}
+	str += layer.config.ans.result ? '1':'0'
+	
 	return str
 })
 
