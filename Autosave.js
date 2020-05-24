@@ -42,12 +42,12 @@ let Autosave = {
 		inps.each(function () {
 			var inp = $(this);
 			var name = inp.attr('name');
-			var val = Autosave.getVal(inp);
+			//var val = Autosave.getVal(inp);
 			var valsave = Autosave.get(autosavename, name);
 			if (valsave !== undefined) { //Значения по умолчанию подставляемые браузером
 				Autosave.setVal(inp, valsave);
 				Autosave.bracket(inp, true);
-				inp.change();
+				//inp.change();
 			}
 		});
 
@@ -152,7 +152,7 @@ let Autosave = {
 			}
 		});
 		//Функция сохраняет все значение, а не только того элемента на ком она сработала
-	
+		
 		Autosave.loadAll(div, autosavename);//Востанавливаем то что есть в autosave, При установки нового занчения срабатывает change
 		//change может программно вызываться у множества элементов. это приводит к тормозам.. нужно объединять
 		inps.change(function () {//Всё на change.. при авто изменении нужно вызывать событие change
