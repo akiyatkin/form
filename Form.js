@@ -2,7 +2,7 @@ import { Fire } from '/vendor/akiyatkin/load/Fire.js'
 import { Session } from '/vendor/infrajs/session/Session.js'
 let reCAPTCHA, Autosave
 
-// Form init, submit, check
+// Form init, submit
 
 let Form = { ...Fire }
 
@@ -71,9 +71,6 @@ Form.hand('submit', async form => {
 	return ans
 })
 
-Form.done('submit', async (form, ans) => {
-	Form.emit('check', form)
-})
 
 window.Form = Form
 export {Form}

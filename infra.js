@@ -7,13 +7,14 @@ DOM.done('load', () => {
 		Form.fire('init', form)
 	}
 })
-
-
-Form.hand('check', async (ans) => {
-	await DOM.emit('check')
+DOM.once('check', async () => {
+	//Нельзя продолжать пока не выполнится инициализация
+	await import('./init.js')
 })
 
-Form.done('check', async (ans) => {
+
+
+Form.done('submit', async (form, ans) => {
 	if (ans.go) {
 		let { Crumb } = await import('/vendor/infrajs/controller/src/Crumb.js')
 		Crumb.go(ans.go)
@@ -22,10 +23,8 @@ Form.done('check', async (ans) => {
 		let { Popup } = await import('/vendor/infrajs/popup/Popup.js')
 		if (ans.result) await Popup.success(ans.msg)
 		else await Popup.error(ans.msg)
-	}	
+	}
 })
-
-DOM.once('check', async () => {
-	//Нельзя продолжать пока не выполнится инициализация
-	await import('./init.js')
+Form.done('submit', async (form, ans) => {
+	await DOM.emit('check')
 })
