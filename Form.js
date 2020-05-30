@@ -1,6 +1,5 @@
 import { Fire } from '/vendor/akiyatkin/load/Fire.js'
-import { Session } from '/vendor/infrajs/session/Session.js'
-let reCAPTCHA, Autosave
+let reCAPTCHA, Autosave, Session
 
 // Form init, submit
 
@@ -8,11 +7,12 @@ let Form = { ...Fire }
 
 Form.once('init', async () => {
 	//init следующий
-	Autosave = (await import('./Autosave.js')).Autosave
+	Autosave = (await import('/vendor/akiyatkin/form/Autosave.js')).Autosave
 })
 
 
 Form.before('submit', async form => {
+	Session = (await import('/vendor/infrajs/session/Session.js')).Session
 	await Session.async() //Поля должны сохраниться в сессии на сервере
 })
 
