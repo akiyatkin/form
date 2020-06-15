@@ -1,8 +1,7 @@
 import { Parsed } from '/vendor/infrajs/controller/src/Parsed.js'
 import { Form } from '/vendor/akiyatkin/form/Form.js'
-import { Layer } from '/vendor/infrajs/controller/src/Layer.js'
 import { Event } from '/vendor/infrajs/event/Event.js'
-
+let Layer, Template, Global, Goal
 Parsed.add(layer => { 
 	//parsed должен забираться после установки msg config-a
 	//После onsubmit слой должен перепарсится
@@ -35,6 +34,7 @@ Form.done('submit', async (form, ans) => {
 
 Form.done('submit', async (form, ans) => {
 	if (!form.dataset.layerid) return
+	let Layer = (await import('/vendor/infrajs/controller/src/Layer.js')).Layer
 	let layer = await Layer.get(form.dataset.layerid)
 	if (!layer.config) layer.config = { }
 	layer.config.ans = ans
