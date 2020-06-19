@@ -132,7 +132,7 @@ let Autosave = {
 		}
 	},
 	init: async function (div, autosavename) {
-		await CDN.on('load','jquery')
+		await CDN.fire('load','jquery')
 		var inps = Autosave.getInps(div).not('[autosave]').attr('autosave', 1);//Берём input тольо не обработанные
 	
 		inps.each(function () {
