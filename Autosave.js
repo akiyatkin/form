@@ -37,7 +37,7 @@ let Autosave = {
 	},
 	//-----------
 	loadAll: async (div, autosavename) => {
-		await CDN.on('load','jquery')
+		await CDN.on('load', 'jquery')
 		var inps = Autosave.getInps(div).filter('[autosave]');
 		inps.each(function () {
 			var inp = $(this);
@@ -132,9 +132,9 @@ let Autosave = {
 		}
 	},
 	init: async function (div, autosavename) {
-		await CDN.fire('load','jquery')
+		await CDN.fire('load', 'jquery')
 		var inps = Autosave.getInps(div).not('[autosave]').attr('autosave', 1);//Берём input тольо не обработанные
-	
+
 		inps.each(function () {
 			var inp = this;
 			var html = '<div class="autosavebreak" title="Отменить изменения" style="display:none; position:absolute; width:9px; height:3px; cursor:pointer; background-color:gray;"onmouseout="this.style.backgroundColor=\'gray\'" onmouseover="this.style.backgroundColor=\'red\'"></div>';
@@ -152,7 +152,7 @@ let Autosave = {
 			}
 		});
 		//Функция сохраняет все значение, а не только того элемента на ком она сработала
-		
+
 		Autosave.loadAll(div, autosavename);//Востанавливаем то что есть в autosave, При установки нового занчения срабатывает change
 		//change может программно вызываться у множества элементов. это приводит к тормозам.. нужно объединять
 		inps.change(function () {//Всё на change.. при авто изменении нужно вызывать событие change
@@ -160,7 +160,7 @@ let Autosave = {
 			var inp = $(this);
 			var name = inp.attr('name');//getInps проверяет чтобы у всех были name
 			//this.removeAttribute('notautosaved');//должно быть отдельное событие которое при малейшем измееннии поля ввода будет удалять это свойство //Если свойства этого нет, то сохранять ничего не нужно
-	
+
 			var val = Autosave.getVal(inp);
 			//var nowval=Autosave.get(layer.autosavename,name);
 			//if(!nowval)nowval='';
@@ -174,4 +174,4 @@ let Autosave = {
 
 window.Autosave = Autosave;//Это нужно из за метода clear который может вызываться кем угодно. и localSave
 
-export {Autosave}
+export { Autosave }
