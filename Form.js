@@ -1,15 +1,14 @@
 import { Fire } from '/vendor/akiyatkin/load/Fire.js'
-let reCAPTCHA, Autosave, Session
+import { inViewport } from '/vendor/akiyatkin/load/inViewport.js'
+let reCAPTCHA, Session
 
 // Form init, submit
 
 let Form = { ...Fire }
 
-Form.once('init', async () => {
-	//init следующий
-	Autosave = (await import('/vendor/akiyatkin/form/Autosave.js')).Autosave
+Form.before('init', async form => {
+	await inViewport(form)
 })
-
 
 Form.before('submit', async form => {
 	Session = (await import('/vendor/infrajs/session/Session.js')).Session
@@ -18,6 +17,7 @@ Form.before('submit', async form => {
 
 Form.hand('init', async form => {
 	if (!form.dataset.autosave) return
+	let { Autosave } = await import('/vendor/akiyatkin/form/Autosave.js')
 	Autosave.init(form, form.dataset.autosave)
 })
 
