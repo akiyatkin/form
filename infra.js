@@ -26,5 +26,5 @@ Form.done('submit', async (form, ans) => {
 	}
 })
 Form.done('submit', async (form, ans) => {
-	await DOM.emit('check')
+	await DOM.puff('check')
 })
