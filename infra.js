@@ -1,7 +1,7 @@
 import { Form } from '/vendor/akiyatkin/form/Form.js'
 import { DOM } from '/vendor/akiyatkin/load/DOM.js'
 
-DOM.done('load', () => {
+DOM.done('load', () => {	
 	for (let form of document.getElementsByTagName('form')) {
 		if (!form.classList.contains('form')) continue
 		Form.fire('init', form)
