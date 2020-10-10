@@ -111,6 +111,7 @@ let Autosave = {
 		} else {
 			inp.val(valsave);
 		}
+		Autosave.fireEvent(inp.get(0), 'change');
 	},
 	bracket: function (inp, is) {
 		if (!is) {
