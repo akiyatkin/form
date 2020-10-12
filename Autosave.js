@@ -30,8 +30,8 @@ let Autosave = {
 		Session.logout();
 		location.href = location.href;//Чтобы сбросить autosave в слоях
 	},
-	set: function (autosavename, name, val) {//skoroskidka, rte.layer.js
-		Session.set(autosavename + '.' + name, val);
+	set: async (autosavename, name, val) => {//skoroskidka, rte.layer.js
+		await Session.set(autosavename + '.' + name, val);
 		//var right=infra.seq.right(name);
 		//layer.autosave=infra.seq.set(layer.autosave,right,val);
 	},
