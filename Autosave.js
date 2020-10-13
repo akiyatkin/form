@@ -37,7 +37,7 @@ let Autosave = {
 	},
 	//-----------
 	loadAll: async (div, autosavename) => {
-		await CDN.on('load', 'jquery')
+		await CDN.fire('load', 'jquery')
 		var inps = Autosave.getInps(div).filter('[autosave]');
 		inps.each(function () {
 			var inp = $(this);
