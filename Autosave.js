@@ -92,9 +92,12 @@ let Autosave = {
 		if (inp.attr('type') == 'checkbox') {
 			inp.attr('checked', valsave);
 		} else if (inp.attr('type') == 'radio') {
+
 			var sel = inp.filter('[value="' + valsave + '"]');
 			if (sel.length) {
-				inp.attr('checked', true);
+				inp.attr('checked', true)
+			} else {
+				return
 			}
 		} else if (inp.is('select')) {
 			//Для работы нужно явно указывать у option атрибут value
