@@ -47,7 +47,7 @@ Form.hand('init', form => {
 
 Form.hand('submit', async form => {
 	let ans = false
-	if (!form.action) return ans
+	if (!form.getAttribute('action')) return ans
 	let response = await fetch(form.action, {
 		method: 'POST',
 		body: new FormData(form)
