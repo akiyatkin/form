@@ -1,5 +1,6 @@
 import { Fire } from '/vendor/akiyatkin/load/Fire.js'
 import { inViewport } from '/vendor/akiyatkin/load/inViewport.js'
+
 let reCAPTCHA, Session
 
 // Form init, submit
@@ -7,7 +8,7 @@ let reCAPTCHA, Session
 let Form = { ...Fire }
 
 Form.before('init', async form => {
-	await inViewport(form)
+	//await inViewport(form)
 })
 
 Form.before('submit', async form => {
@@ -56,12 +57,12 @@ Form.hand('submit', async form => {
 	
 	if (response) {
 		try {
-			ans = await response.json()
+			ans = await response.clone().json()
 		} catch (e) {
 			msg = 'Server Error'
 			let text = await response.text()
-			let { Access } = import('/vendor/infrajs/access/Access.js')
-			if (await Access.debug()) msg += '<hr>' + e + '<hr>' + text
+			let { Access } = await import('/vendor/infrajs/access/Access.js')
+			if (Access.debug()) msg += '<hr>' + e + '<hr>' + text
 		}
 	}
 	if	 (!ans) ans = {

@@ -9,7 +9,7 @@ import { Session } from '/vendor/infrajs/session/Session.js'
 
 let Autosave = {
 	getInps: function (div) {
-		return $(div).find('select, .autosaveblock, [type=search], [type=number], [type=tel], [type=email], [type=password], [type=text], [type=radio], [type=checkbox], textarea').filter('[autosave!=0]').filter('[data-autosave!=false]').filter('[name!=""]');
+		return $(div).find('select, .autosaveblock, [type=date], [type=search], [type=number], [type=tel], [type=email], [type=password], [type=text], [type=radio], [type=checkbox], textarea').filter('[autosave!=0]').filter('[data-autosave!=false]').filter('[name!=""]');
 	},
 	/**
 	* слой у которого нужно очистить весь autosave, например после отправки формы на сервер, нужно сбросить сохранённые в инпутах данные
