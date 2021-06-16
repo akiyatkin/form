@@ -9,7 +9,14 @@ import { Session } from '/vendor/infrajs/session/Session.js'
 
 let Autosave = {
 	getInps: function (div) {
-		return $(div).find('select, .autosaveblock, [type=date], [type=search], [type=number], [type=tel], [type=email], [type=password], [type=text], [type=radio], [type=checkbox], textarea').filter('[autosave!=0]').filter('[data-autosave!=false]').filter('[name!=""]');
+		const inps = $(div).find('select, .autosaveblock, [type=date], [type=search], [type=number], [type=tel], [type=email], [type=password], [type=text], [type=radio], [type=checkbox], textarea').filter('[autosave!=0]').filter('[data-autosave!=false]').filter('[name!=""]').filter('[name]');
+		//return inps;
+		let real = [];
+		for (const inp of inps) {
+			if (inp.closest('.noautosave')) continue;
+			real.push(inp)
+		}
+		return $(real);
 	},
 	/**
 	* слой у которого нужно очистить весь autosave, например после отправки формы на сервер, нужно сбросить сохранённые в инпутах данные
@@ -77,7 +84,10 @@ let Autosave = {
 		} else if (inp.is('radio')) {
 			var val = inp.is(':checked');
 		} else if (inp.is('select')) {
-			var val = inp.find('option:selected').val();
+			const select = inp.get(0)
+			var val = [...select.options].filter(option => option.selected).map(option => option.value)
+			if (!select.multiple) val = val[0]
+			//var val = inp.find('option:selected').val();
 		} else if (inp.hasClass('autosaveblock')) {
 			//console.error('AUTOSAVE: Нельзя считывать значение из .autosaveblock');
 			//val = 'autosaveblock error';
@@ -101,14 +111,13 @@ let Autosave = {
 			}
 		} else if (inp.is('select')) {
 			//Для работы нужно явно указывать у option атрибут value
-			var sel = inp.find('option[value="' + valsave + '"]');
-			if (!sel.length) {
-				sel = inp.find('option:contains("' + valsave + '")');
-			}
-			if (sel.length) {
-				inp.find('option').removeAttr('selected');
-			}
-			sel.attr('selected', 'selected');
+			if (typeof(valsave) != 'object') valsave = [valsave];
+			const select = inp.get(0)
+			const options = [...select.options]
+			const optionsno = options.filter(option => !~valsave.indexOf(option.value));
+			const optionsyes = options.filter(option => ~valsave.indexOf(option.value));
+			for (const opt of optionsno) opt.removeAttribute('selected')
+			for (const opt of optionsyes) opt.setAttribute('selected','selected')
 		} else if (inp.hasClass('autosaveblock')) {
 			inp.text(valsave);
 		} else {
@@ -166,6 +175,7 @@ let Autosave = {
 			//this.removeAttribute('notautosaved');//должно быть отдельное событие которое при малейшем измееннии поля ввода будет удалять это свойство //Если свойства этого нет, то сохранять ничего не нужно
 
 			var val = Autosave.getVal(inp);
+
 			//var nowval=Autosave.get(layer.autosavename,name);
 			//if(!nowval)nowval='';
 			//if(val===nowval)return;
