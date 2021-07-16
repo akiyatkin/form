@@ -1,6 +1,6 @@
 {
 	"name": "akiyatkin/form",
-	"dependencies":{
+	"require":{
 		"akiyatkin/recaptcha":"~1",
 		"akiyatkin/goal":"~1"	,
 		"infrajs/layer-global":"~1"
