@@ -16,7 +16,7 @@ const Ses = {
 				db.onerror = event => console.log("Database error: " + event.target.errorCode)
 				resolve(db)
 			}
-			request.onupgradeneeded  = () => {
+			request.onupgradeneeded  = event => {
 				const db = event.target.result
 				if (db.objectStoreNames.contains('Ses')) db.deleteObjectStore('Ses');
 				if (!db.objectStoreNames.contains('data')) {
