@@ -1,0 +1,11 @@
+.autosavebreak {
+	display:none; 
+	position:absolute; 
+	width:9px; 
+	height:3px; 
+	cursor:pointer; 
+	background-color:gray;
+}
+.autosavebreak:hover {
+	background-color:red;	
+}

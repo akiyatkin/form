@@ -1,5 +1,7 @@
 import { CDN } from '/vendor/akiyatkin/load/CDN.js'
-import { Session } from '/vendor/infrajs/session/Session.js'
+import { Ses } from '/vendor/akiyatkin/form/Ses.js'
+
+
 //Скрипт. Точка это разделитель. Могут проблемы когда имя свойства файл расширением,
 //autosavename - путь где сохраняются данные,
 //
@@ -7,16 +9,11 @@ import { Session } from '/vendor/infrajs/session/Session.js'
 //autosave="0" не использовать автосохранение для данного слоя
 //autosavebreak="1" позволять у поля сбрасывать автососхранение
 
-let Autosave = {
+const pips = new WeakMap()
+const inpsready = new WeakSet()
+const Autosave = {
 	getInps: function (div) {
-		const inps = $(div).find('select, .autosaveblock, [type=date], [type=search], [type=number], [type=tel], [type=email], [type=password], [type=text], [type=radio], [type=checkbox], textarea').filter('[autosave!=0]').filter('[data-autosave!=false]').filter('[name!=""]').filter('[name]');
-		//return inps;
-		let real = [];
-		for (const inp of inps) {
-			if (inp.closest('.noautosave')) continue;
-			real.push(inp)
-		}
-		return $(real);
+		
 	},
 	/**
 	* слой у которого нужно очистить весь autosave, например после отправки формы на сервер, нужно сбросить сохранённые в инпутах данные
@@ -25,167 +22,122 @@ let Autosave = {
 	clear: function (layer) {//Если autosave у двух слоёв одинаковый нельзя нарушать связь
 		if (!layer.autosavename) return;
 		//layer.autosave={};
-		Session.set(layer.autosavename);
+		return Ses.clear(layer.autosavename);
 	},
-	get: function (autosavename, name, def) { //blinds
-		if (!autosavename) return def;
-		if (!name) name = '';
-		var val = Session.get(autosavename + '.' + name, def);
-		return val;
-	},
-	logout: function () {//нет возможности востановить значения по умолчанию указанные в слоях.
-		Session.logout();
-		location.href = location.href;//Чтобы сбросить autosave в слоях
-	},
-	set: async (autosavename, name, val) => {//skoroskidka, rte.layer.js
-		await Session.set(autosavename + '.' + name, val);
-		//var right=infra.seq.right(name);
-		//layer.autosave=infra.seq.set(layer.autosave,right,val);
-	},
+	// get: async (autosavename, name, def) => { //blinds
+	// 	if (!autosavename) return def;
+	// 	if (!name) name = '';
+	// 	const val = await Ses.get(autosavename, name, def);
+	// 	return val;
+	// },
+	// logout: () => {//нет возможности востановить значения по умолчанию указанные в слоях.
+	// 	Ses.logout();
+	// 	location.href = location.href;//Чтобы сбросить autosave в слоях
+	// },
+	// set: (autosavename, name, val) => {//skoroskidka, rte.layer.js
+	// 	return Ses.set(autosavename, name, val);
+	// },
 	//-----------
-	loadAll: async (div, autosavename) => {
-		await CDN.fire('load', 'jquery')
-		var inps = Autosave.getInps(div).filter('[autosave]');
-		inps.each(function () {
-			var inp = $(this);
-			var name = inp.attr('name');
-			//var val = Autosave.getVal(inp);
-			var valsave = Autosave.get(autosavename, name);
-			if (valsave !== undefined) { //Значения по умолчанию подставляемые браузером
-				Autosave.setVal(inp, valsave);
-				Autosave.bracket(inp, true);
-				//inp.change();
-			}
-		});
-
-	},
-	/*saveAll: async function (autosavename, div) {
-		if (!autosavename) return;
-		await CDN.on('load','jquery')
-		var inps = Autosave.getInps(div).filter('[autosave]');
-
-		inps.each(function () {
-			var inp = $(this);
-			var name = inp.attr('name');
-			if (!name) return;
-			//this.removeAttribute('notautosaved');//должно быть отдельное событие которое при малейшем измееннии поля ввода будет удалять это свойство //Если свойства этого нет, то сохранять ничего не нужно
-			var val = Autosave.getVal(inp);
-			var nowval = Autosave.get(layer.autosavename, name);
-			if (!nowval) nowval = '';
-			if (val == nowval) return;
-			Autosave.bracket(inp, true);
-			Autosave.set(layer.autosavename, name, val);
-		});
-	},*/
 	getVal: function (inp) {
-		inp = $(inp);
-		if (inp.attr('type') == 'checkbox') {
-			var val = inp.is(':checked');
-		} else if (inp.is('radio')) {
-			var val = inp.is(':checked');
-		} else if (inp.is('select')) {
-			const select = inp.get(0)
-			var val = [...select.options].filter(option => option.selected).map(option => option.value)
-			if (!select.multiple) val = val[0]
-			//var val = inp.find('option:selected').val();
-		} else if (inp.hasClass('autosaveblock')) {
-			//console.error('AUTOSAVE: Нельзя считывать значение из .autosaveblock');
-			//val = 'autosaveblock error';
-			val = $(inp).text();
+		if (inp.type == 'checkbox') {
+			return inp.checked
+		} else if (inp.type == 'radio') {
+			return inp.checked
+		} else if (inp.tagName == 'SELECT') {
+			const val = [...inp.options].filter(option => option.selected).map(option => option.value)
+			if (!inp.multiple) val = val[0]
+			return val
+		} else if (inp.classList.contains('autosaveblock')) {
+			return inp.innerHTML
 		} else {
-			var val = inp.val();
+			return inp.value
 		}
-		return val;
 	},
 	setVal: function (inp, valsave) {
-		inp = $(inp);
-		if (inp.attr('type') == 'checkbox') {
-			inp.attr('checked', valsave);
-		} else if (inp.attr('type') == 'radio') {
-
-			var sel = inp.filter('[value="' + valsave + '"]');
-			if (sel.length) {
-				inp.attr('checked', true)
-			} else {
-				return
-			}
-		} else if (inp.is('select')) {
+		if (inp.type == 'checkbox') {
+			inp.checked = valsave
+		} else if (inp.type == 'radio') {
+			if (inp.value == valsave) inp.checked = true;
+		} else if (inp.tagName == 'SELECT') {
 			//Для работы нужно явно указывать у option атрибут value
 			if (typeof(valsave) != 'object') valsave = [valsave];
-			const select = inp.get(0)
-			const options = [...select.options]
+			const options = [...inp.options]
 			const optionsno = options.filter(option => !~valsave.indexOf(option.value));
 			const optionsyes = options.filter(option => ~valsave.indexOf(option.value));
 			for (const opt of optionsno) opt.removeAttribute('selected')
 			for (const opt of optionsyes) opt.setAttribute('selected','selected')
-		} else if (inp.hasClass('autosaveblock')) {
-			inp.text(valsave);
+		} else if (inp.classList.contains('autosaveblock')) {
+			inp.innerHTML = valsave;
 		} else {
-			inp.val(valsave);
-		}
-		Autosave.fireEvent(inp.get(0), 'change');
-	},
-	bracket: function (inp, is) {
-		if (!is) {
-			$(inp).prevAll('.autosavebreak:first').css('display', 'none');
-		} else {
-			$(inp).prevAll('.autosavebreak:first').css('display', '');
+			inp.value = valsave;
 		}
 	},
-	fireEvent: function (element, event) {
-		if (document.createEventObject) {
-			// dispatch for IE
-			var evt = document.createEventObject();
-			return element.fireEvent('on' + event, evt)
-		} else {
-			// dispatch for others
-			var evt = document.createEvent("HTMLEvents");
-			evt.initEvent(event, true, true); // event type,bubbling,cancelable
-			return !element.dispatchEvent(evt);
-		}
+	setValChange: function (inp, valsave) {
+		Autosave.setVal(inp, valsave)
+		inp.dispatchEvent(new Event("change", {
+			bubbles: true,
+			cancelable: true
+		}))
 	},
-	init: async function (div, autosavename) {
-		await CDN.fire('load', 'jquery')
-		var inps = Autosave.getInps(div).not('[autosave]').attr('autosave', 1);//Берём input тольо не обработанные
+	statusPip: function (inp, is) {
+		const pip = pips.get(inp)
+		if (!pip) return;
+		pip.style.display = is ? 'block' : 'none'
+	},
+	makePip: (inp, autosavename) => {
+		const pip = document.createElement('DIV')
+		pip.className = "autosavebreak"
+		pip.title = "Отменить изменения"
+		inp.before(pip);
+		const def = Autosave.getVal(inp);
+		pip.addEventListener('click', () => {
+			Autosave.setValChange(inp, def);
+			Autosave.statusPip(inp, false) //Скрываем пипку сбороса сохранённого
+			Ses.del(autosavename, inp.name) //В сессии установится null 	
+		})
+		return pip
+	},
+	init: function (div, autosavename) {
+		const nodelist = div.querySelectorAll('select, .autosaveblock, [type=date], [type=search], [type=number], [type=tel], [type=email], [type=password], [type=text], [type=radio], [type=checkbox], textarea')
+		const inps = [...nodelist].filter(inp => {
+			if (inp.getAttribute('autosave')) return false
+			if (inp.dataset.autoasave == 'false') return false
+			if (inp.dataset.autoasave == '0') return false
+			if (inp.closest('.noautosave')) return false
+			if (!inp.name) return false
+			return true
+		})
 
-		inps.each(function () {
-			var inp = this;
-			var html = '<div class="autosavebreak" title="Отменить изменения" style="display:none; position:absolute; width:9px; height:3px; cursor:pointer; background-color:gray;"onmouseout="this.style.backgroundColor=\'gray\'" onmouseover="this.style.backgroundColor=\'red\'"></div>';
-			if (inp.getAttribute('autosavebreak')) {
-				inp.removeAttribute('autosavebreak');
-				$(inp).before(html);
-				var def = Autosave.getVal(inp);
-				$(inp).prevAll('.autosavebreak:first').click(function () {
-					Autosave.setVal(inp, def);
-					//$(inp).change();//Применится для визуального редактора
-					Autosave.fireEvent(inp, 'change');
-					Autosave.set(autosavename, inp.name, undefined);//В сессии установится null 
-					Autosave.bracket(inp, false);//Скрываем пипку сбороса сохранённого
-				});
+		for (const inp of inps) {
+			if (inpsready.has(inp)) continue
+			const disabled = inp.disabled
+			inp.disabled = true
+			Ses.get(autosavename, inp.name, null).then(valsave => {
+				inp.disabled = disabled
+				if (valsave == null) return
+				Autosave.setValChange(inp, valsave);
+				Autosave.statusPip(inp, true);
+				
+			})
+			inp.addEventListener('change', () => {
+				const val = Autosave.getVal(inp);
+				Autosave.statusPip(inp, true);
+				Ses.set(autosavename, inp.name, val);
+			})
+			inpsready.add(inps)
+		}
+		for (const inp of inps) {
+			if (pips.has(inp)) continue
+			if (inp.dataset.break) {
+				const pip = Autosave.makePip(inp, autosavename)
+				pips.set(inp, pip)
 			}
-		});
-		//Функция сохраняет все значение, а не только того элемента на ком она сработала
-
-		Autosave.loadAll(div, autosavename);//Востанавливаем то что есть в autosave, При установки нового занчения срабатывает change
-		//change может программно вызываться у множества элементов. это приводит к тормозам.. нужно объединять
-		inps.change(function () {//Всё на change.. при авто изменении нужно вызывать событие change
-			//Autosave.saveAll(layer);
-			var inp = $(this);
-			var name = inp.attr('name');//getInps проверяет чтобы у всех были name
-			//this.removeAttribute('notautosaved');//должно быть отдельное событие которое при малейшем измееннии поля ввода будет удалять это свойство //Если свойства этого нет, то сохранять ничего не нужно
-
-			var val = Autosave.getVal(inp);
-
-			//var nowval=Autosave.get(layer.autosavename,name);
-			//if(!nowval)nowval='';
-			//if(val===nowval)return;
-			Autosave.bracket(inp, true);
-			Autosave.set(autosavename, name, val);
-		});//Подписались на события inputов onchange
+			if (inp.getAttribute('autosavebreak')) {
+				const pip = Autosave.makePip(inp, autosavename)
+				pips.set(inp, pip)
+			}
+		}
 	}
-};
-
-
-window.Autosave = Autosave;//Это нужно из за метода clear который может вызываться кем угодно. и localSave
+}
 
 export { Autosave }

@@ -1,7 +1,7 @@
 import { Fire } from '/vendor/akiyatkin/load/Fire.js'
 import { inViewport } from '/vendor/akiyatkin/load/inViewport.js'
 
-let reCAPTCHA, Session
+let reCAPTCHA
 
 // Form init, submit
 
@@ -9,11 +9,6 @@ let Form = { ...Fire }
 
 Form.before('init', async form => {
 	//await inViewport(form)
-})
-
-Form.before('submit', async form => {
-	Session = (await import('/vendor/infrajs/session/Session.js')).Session
-	await Session.async() //Поля должны сохраниться в сессии на сервере
 })
 
 Form.hand('init', async form => {
