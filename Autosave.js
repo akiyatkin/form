@@ -44,7 +44,7 @@ const Autosave = {
 		} else if (inp.type == 'radio') {
 			return inp.checked
 		} else if (inp.tagName == 'SELECT') {
-			const val = [...inp.options].filter(option => option.selected).map(option => option.value)
+			let val = [...inp.options].filter(option => option.selected).map(option => option.value)
 			if (!inp.multiple) val = val[0]
 			return val
 		} else if (inp.classList.contains('autosaveblock')) {
