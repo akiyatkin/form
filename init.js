@@ -28,7 +28,7 @@ Form.after('submit', async (form, ans) => {
 Form.done('submit', async (form, ans) => {
 	if (!form.dataset.goal) return
 	const { Goal } = await import('/vendor/akiyatkin/goal/Goal.js')
-	Goal.reach('submit-' + form.dataset.goal)
+	Goal.reach(form.dataset.goal + '-submit')
 	if (!ans.result) return
 	Goal.reach(form.dataset.goal)
 })
