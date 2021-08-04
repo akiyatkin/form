@@ -26,10 +26,11 @@ Form.after('submit', async (form, ans) => {
 })
 
 Form.done('submit', async (form, ans) => {
-	if (!ans.result) return;
 	if (!form.dataset.goal) return
-	let { Goal } = await import('/vendor/akiyatkin/goal/Goal.js')
-	Goal.reach(form.dataset.goal);
+	const { Goal } = await import('/vendor/akiyatkin/goal/Goal.js')
+	Goal.reach('submit-' + form.dataset.goal)
+	if (!ans.result) return
+	Goal.reach(form.dataset.goal)
 })
 
 Form.done('submit', async (form, ans) => {
