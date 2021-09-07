@@ -28,3 +28,12 @@ Form.done('submit', async (form, ans) => {
 Form.done('submit', async (form, ans) => {
 	await DOM.puff('check')
 })
+
+Form.before('submit', form => {
+	//Защита от двойной отправки формы
+	const buttons = form.getElementsByTagName('button')
+	for (const button of buttons) button.disabled = true
+	setTimeout(() => {
+		for (const button of buttons) button.disabled = false	
+	}, 10000);
+})
