@@ -110,6 +110,15 @@ const Autosave = {
 
 		for (const inp of inps) {
 			if (inpsready.has(inp)) continue
+			inpsready.add(inps)
+
+			inp.addEventListener('change', () => {
+				const val = Autosave.getVal(inp);
+				Autosave.statusPip(inp, true);
+				Ses.set(autosavename, inp.name, val);
+			})
+			
+			if (inp == document.activeElement) continue
 			const disabled = inp.disabled
 			inp.disabled = true
 			Ses.get(autosavename, inp.name, null).then(valsave => {
@@ -119,12 +128,7 @@ const Autosave = {
 				Autosave.statusPip(inp, true);
 				
 			})
-			inp.addEventListener('change', () => {
-				const val = Autosave.getVal(inp);
-				Autosave.statusPip(inp, true);
-				Ses.set(autosavename, inp.name, val);
-			})
-			inpsready.add(inps)
+			
 		}
 		for (const inp of inps) {
 			if (pips.has(inp)) continue
