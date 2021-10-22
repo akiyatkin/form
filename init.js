@@ -6,7 +6,7 @@ Parsed.add(layer => {
 	//parsed должен забираться после установки msg config-a
 	//После onsubmit слой должен перепарсится
 	//if (!layer.onsubmit) return 's'
-	if (!layer.config || !layer.config.ans) return 's'
+	if (!layer.config || !layer.config.ans) return ''
 	let str = layer.config.ans.msg
 	if (!str) str = 's'
 	if (layer.config.ans.time) {
