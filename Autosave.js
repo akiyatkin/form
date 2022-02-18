@@ -97,7 +97,9 @@ const Autosave = {
 		})
 		return pip
 	},
-	init: function (div, autosavename) {
+	proc: [],
+	init: async (div, autosavename) => {
+		await Promise.all(Autosave.proc)
 		const nodelist = div.querySelectorAll('select, .autosaveblock, [type=date], [type=search], [type=number], [type=tel], [type=email], [type=password], [type=text], [type=radio], [type=checkbox], textarea')
 		const inps = [...nodelist].filter(inp => {
 			if (inp.getAttribute('autosave')) return false
@@ -108,6 +110,7 @@ const Autosave = {
 			return true
 		})
 
+		Autosave.proc = [];
 		for (const inp of inps) {
 			if (inpsready.has(inp)) continue
 			inpsready.add(inps)
@@ -121,13 +124,12 @@ const Autosave = {
 			if (inp == document.activeElement) continue
 			const disabled = inp.disabled
 			inp.disabled = true
-			Ses.get(autosavename, inp.name, null).then(valsave => {
+			Autosave.proc.push(Ses.get(autosavename, inp.name, null).then(valsave => {
 				inp.disabled = disabled
 				if (valsave == null) return
 				Autosave.setValChange(inp, valsave);
 				Autosave.statusPip(inp, true);
-				
-			})
+			}))
 			
 		}
 		for (const inp of inps) {
@@ -141,6 +143,7 @@ const Autosave = {
 				pips.set(inp, pip)
 			}
 		}
+		Promise.all(Autosave.proc).then(() => Autosave.proc = [])
 	}
 }
 
