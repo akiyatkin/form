@@ -7,7 +7,7 @@ let reCAPTCHA
 
 let Form = { ...Fire }
 
-Form.before('init', async form => {
+Form.till('init', async form => {
 	//await inViewport(form)
 })
 
@@ -17,7 +17,7 @@ Form.hand('init', async form => {
 	Autosave.init(form, form.dataset.autosave)
 })
 
-Form.before('submit', async form => {
+Form.till('submit', async form => {
 	if (!form.dataset.recaptcha) return
 	reCAPTCHA = (await import('/vendor/akiyatkin/recaptcha/reCAPTCHA.js')).reCAPTCHA
 	await reCAPTCHA.fire('apply', form)
@@ -25,7 +25,7 @@ Form.before('submit', async form => {
 
 
 
-Form.before('init', form => {
+Form.till('init', form => {
 	let cls = (cls) => form.getElementsByClassName(cls)
 	for (let btn of cls('submit')) {
 		btn.addEventListener('click', ()=>{
@@ -34,7 +34,7 @@ Form.before('init', form => {
 		})
 	}
 })
-Form.hand('init', form => {
+Form.till('init', form => { //before
 	form.addEventListener('submit', async e => {
 		e.preventDefault()
 		Form.puff('submit', form)
