@@ -35,5 +35,5 @@ Form.before('submit', form => {
 	for (const button of buttons) button.disabled = true
 	setTimeout(() => {
 		for (const button of buttons) button.disabled = false
-	}, 10000);
+	}, 1000);
 })
